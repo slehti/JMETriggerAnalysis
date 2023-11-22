@@ -1,6 +1,8 @@
 #! /usr/bin/env python3
 
-crabSubmitFile = open("SubmitCrabJobsData.sh","w")
+import os
+fName = "SubmitCrabJobsData.sh"
+crabSubmitFile = open(fName,"w")
 crabSubmitFile.write("#!/bin/bash\n")
 
 
@@ -33,6 +35,7 @@ samples = {
   '/Muon1/Run2023D-PromptReco-v2/MINIAOD':["Muon1_Run2023DV2","Winter23Prompt23_V2_MC","Cert_Collisions2023_366442_370790_Golden.json","130X_dataRun3_Prompt_v2"],
 }
 
+
 # 124X_dataRun3_Prompt_v4 for 2022
 
 for sample, sample_attributes in samples.items():
@@ -46,6 +49,11 @@ for sample, sample_attributes in samples.items():
   crabSubmitFile.write("rm -rf crab_"+name+"\n")
   crabSubmitFile.write("crab submit -c crab3_"+name+".py\n")
 
+  dIN = os.getcwd()
+  while os.path.basename(dIN) != 'test':
+    dIN = os.path.dirname(dIN)
+  USER = os.environ["USER"]
+
   file = open("crab3_"+name+".py","w")
   file.write("import sys\n")
   file.write("from CRABClient.UserUtilities import config\n")
@@ -54,7 +62,7 @@ for sample, sample_attributes in samples.items():
   file.write("store_dir = \'CoffTeaNTuples\'\n")
   file.write("sample_name = \'"+name+"\'\n")
   file.write("\n")
-  file.write("input_file_dir = \'/afs/cern.ch/work/t/tchatzis/private/run3_2023/CMSSW_13_0_7_patch1/src/JMETriggerAnalysis/NTuplizers/test/\'\n")
+  file.write("input_file_dir = \'%s\'\n"%dIN)
   file.write("\n")
   file.write("config.section_(\'General\')\n")
   file.write("config.General.requestName = sample_name\n")
@@ -64,10 +72,10 @@ for sample, sample_attributes in samples.items():
   file.write("config.section_(\'JobType\')\n")
   file.write("config.JobType.pluginName = \'Analysis\'\n")
   file.write("config.JobType.maxMemoryMB = 2500\n")
-  file.write("config.JobType.psetName = input_file_dir+\'jmeTriggerNTuple2023Data_miniAOD_cfg.py\'\n")
+  file.write("config.JobType.psetName = \'%s\'\n"%(os.path.join(dIN,'jmeTriggerNTuple2023Data_miniAOD_cfg.py')))
   file.write("config.JobType.pyCfgParams = [\'offlineJecs="+jecsName+"\',\'globalTag="+globalTag+"\']\n")
   file.write("config.JobType.allowUndistributedCMSSW = True\n")
-  file.write("config.JobType.inputFiles = [input_file_dir+\'"+jecsName+".db\']\n")
+  file.write("config.JobType.inputFiles = [\'%s\']\n"%(os.path.join(dIN,jecsName+".db")))
   file.write("\n")
   file.write("config.section_(\'Data\')\n")
   file.write("config.Data.publication = False\n")
@@ -77,11 +85,12 @@ for sample, sample_attributes in samples.items():
   file.write("config.Data.unitsPerJob = 200\n")
   file.write("config.Data.totalUnits = -1\n")
   file.write("\n")
-  file.write("config.Data.lumiMask = input_file_dir+\'"+lumiJSON+"\'\n")
-  file.write("config.Data.outLFNDirBase = \'/store/user/tchatzis/\'+store_dir+\'/\'+sample_name\n")
+  file.write("config.Data.lumiMask = \'%s\'\n"%(os.path.join(dIN,lumiJSON)))
+  file.write("config.Data.outLFNDirBase = \'/store/user/%s/\'+store_dir+\'/\'+sample_name\n"%USER)
   file.write("\n")
   file.write("config.section_(\'Site\')\n")
   file.write("config.Site.storageSite = \'T3_CH_CERNBOX\'\n")
   file.close()
 
 crabSubmitFile.close()
+print(fName)
