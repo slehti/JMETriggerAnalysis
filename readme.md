@@ -19,7 +19,9 @@ For the last two there is available documentation in the subdirectories. (Note: 
 ----------
 
 **Note**: for instructions on HLT PF-Hadron calibrations and Jet Energy Scale Corrections,
-please ignore this `readme`, and follow the instructions in the dedicated `readme` files.
+please ignore this `readme`, and follow the instructions in the dedicated `readme` files:
+- [JECs instructions](https://github.com/theochatzis/JMETriggerAnalysis/tree/run3_13_3_X_jecs/JESCorrections/readme.md)
+- [PFHCs instructions](https://github.com/theochatzis/JMETriggerAnalysis/blob/run3_13_3_X_jecs/PFHadronCalibration/readme.md)
 
 ----------
 ----------
@@ -36,7 +38,16 @@ cmsrel CMSSW_14_0_14
 cd CMSSW_14_0_14/src
 cmsenv
 git cms-init
+## --- You can find bellow useful additions to standard CMSSW for relevant studies ---
+## Only use those in case you want to perform such a study. 
+# Use this merge-topic in case you want to study removal of low pT jets in MHT
 git cms-merge-topic theochatzis:testMHTforFwd
+
+# In case you want to study the new CaloTowers update
+git cms-addpkg RecoLocalCalo/CaloTowersCreator
+git cherry-pick 979e2299d39a803bcdfec5b20ad083e67f7a30dc
+## -----------------------------------------------------------------------------------
+
 git clone git@github.com:theochatzis/JMETriggerAnalysis.git -b run3_14_0_X
 
 
@@ -46,13 +57,13 @@ scram b -j 12
 Make sure the menu is updated (see bellow section : Getting the HLT Menu configuration).
 Do:
 ```
-cd ${CMSSW_BASE}/JMETriggerAnalysis/Common/test
+cd ${CMSSW_BASE}/src/JMETriggerAnalysis/Common/test
 ./dumpHLTMenus_mcRun3.sh
 ```
 
 Test command:
 ```
-cd ${CMSSW_BASE}/JMETriggerAnalysis/NTuplizers/test
+cd ${CMSSW_BASE}/src/JMETriggerAnalysis/NTuplizers/test
 cmsRun jmeTriggerNTuple_cfg.py maxEvents=10 output=out_HLT_Run3TRK.root
 ```
 
@@ -60,6 +71,7 @@ cmsRun jmeTriggerNTuple_cfg.py maxEvents=10 output=out_HLT_Run3TRK.root
 
 ### Tools for JME studies on the Run-3 HLT reconstruction
 
+<<<<<<< HEAD
 Here the main structure of the logic in the framework and the production of NTuples scripts is decribed. 
 To begin with, there are 2 ways that we access the information for HLT objects.
 1. Re-run HLT configuration: This way is the slowest since we need to run the whole reconstruction from `RAW` datasets (for data or `GEN-SIM-RAW` in MC). In this way the full HLT info gets available. This is essential if you want to test something that is not available in the deployed HLT reconstruction. 
@@ -118,26 +130,9 @@ it will create a script that will submit the jobs and the different crab configs
 ### Analyzing Events from NTuples
 The directory for Analysis of the output NTuples is the `NTupleAnalysis`. You can see a structure with different plugins that are used for analysis, and python scripts that utilize those or provide tools in the `test` directory.
 
-A description of the basic tools can be found [here](https://github.com/theochatzis/JMETriggerAnalysis/tree/run3_13_0_X/NTupleAnalysis/test#readme).
+A description of the basic tools and how to use them can be found [here](https://github.com/theochatzis/JMETriggerAnalysis/tree/run3_13_0_X/NTupleAnalysis/test#readme).
 
-Utilizing those tools usually one can make scripts performing an analysis or a part of it. Some indicative scripts for the different parts are following:
 
-1. Adding the output NTuples:
-```
-JMETriggerAnalysis/NTupleAnalysis/test/addNTuples_2023Data.sh
-```
-2. Analyzing the NTuples creating multiple histograms with objects quantities/performances between different matched collections, for selections based on a trigger or any other selection. This contains all the needed information to make a trigger efficiency plot or performance plots.
-```
-JMETriggerAnalysis/NTupleAnalysis/test/runAnalysis_hltRun3_2023Data.sh
-```
-3. Plotting scripts. There are plotting scripts for performances like the following:
-```
-JMETriggerAnalysis/NTupleAnalysis/test/plotVersionCheck.sh
-```
-or for trigger efficiencies. For example:
-```
-JMETriggerAnalysis/NTupleAnalysis/test/plotEfficiencies_2023Data.sh
-```
 
 ----------
 
