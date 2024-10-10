@@ -3,6 +3,7 @@
 set -e
 
 if [ $# -ne 1 ]; then
+  # example: makeNTuples_run3_latest.sh MHT_samples2023_v2
   printf "\n%s\n\n" ">> argument missing - specify path to output directory"
   exit 1
 fi
@@ -10,8 +11,8 @@ fi
 NEVT=500000
 
 
-OUTPUT_DIR_EOS=/eos/user/${USER:0:1}/${USER}/JMETriggerAnalysis_samples2023
-ODIR=${1}
+OUTPUT_DIR_EOS=/eos/user/${USER:0:1}/${USER}/JMETriggerAnalysisNtuples_${1}
+ODIR=output_JMETriggerAnalysisNtuples_${1}
 
 
 declare -A samplesMap
@@ -25,8 +26,9 @@ samplesMap["Run3Summer23BPix_VBF_HToInvisible"]="/VBFHToInvisible_M-125_TuneCP5_
 #"/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer23BPixDRPremix-130X_mcRun3_2023_realistic_postBPix_v6-v2/GEN-SIM-RAW"
 
 recoKeys=(
-  default
-  testMHT
+    default
+    MHT_eta30pt25
+    MHT_eta30pt30
 )
 
 if [ -d ${OUTPUT_DIR_EOS}/${ODIR} ]; then
@@ -46,7 +48,7 @@ fi
 
 
 for recoKey in "${recoKeys[@]}"; do
-  python3 ${CMSSW_BASE}/src/JMETriggerAnalysis/NTuplizers/test/jmeTriggerNTuple_cfg.py dumpPython=.tmp_cfg.py 
+  python3 ${CMSSW_BASE}/src/JMETriggerAnalysis/NTuplizers/test/jmeTriggerNTuple_cfg.py dumpPython=.tmp_cfg.py reco=${recoKey}
 
   for sampleKey in ${!samplesMap[@]}; do
     sampleName=${samplesMap[${sampleKey}]}

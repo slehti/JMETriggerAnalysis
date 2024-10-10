@@ -81,12 +81,26 @@ The script will submit only those datasets which are missing (=the one just remo
 For HTC Condor there are 2 python scripts that are used, located in `JMETriggerAnalysis/NTuplizers/scripts`.
 * `bdriver.py`: this script creates condor configuration files, each containing a different subset of events, and the corresponding executables (`.sh` scripts) that these use. It can also submit the jobs right after the configuration files creation using the `--submit` option. 
 For the creation of the executables it needs a config file as input, which we produce via the `dumpPython` option mentioned above.
-* `bmonitor.py`: this script can be used to monitor and submit scripts created by bdriver. 
-To run these scripts one can use an executable shell scripts like the ones located in `JMETriggerAnalysis/NTuplizers/test/scripts`. An example of such a script is:
+* `bmonitor.py`: this script can be used to monitor and submit scripts created by bdriver.
+
+To run these scripts one can use an executable shell scripts like the ones located in `JMETriggerAnalysis/NTuplizers/test/scripts`. Example:
 ```
-./makeNTuples_run3_latest.sh
+scripts/makeNTuples_run3_latest.sh <label for outputdir>
+scripts/makeNTuples_run3_latest.sh MHT_samples2023_v2
 ```
-for the output dir you can change the `OUTPUT_DIR_EOS` inside the script.
+This will create an outputdir in the local dir and on eos.
+
+To merge the ntuples after all condor jobs are finished
+```
+mergeNtuples.py <outputdir>
+mergeNtuples.py output_JMETriggerAnalysisNtuples_MHT_samples2023_v4
+```
+
+After merging move to the analysis directory
+```
+cd ../../NTupleAnalysis/test/
+```
+
 
 It is handy if you want to submit the same configuration with different reconstructions as you can give the different `reco` options in a list of the bash script. Also you can simultaneously analyze multiple datasets with the same configuration.
 

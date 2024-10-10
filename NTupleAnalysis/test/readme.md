@@ -2,6 +2,22 @@
 
 Workflow to produce Jet/MET performance plots from "flat" ROOT NTuples
 
+#### Fast example
+Running the analysis with the ntuple outputdir as an input
+```
+runAnalysis_hltRun3.py ../../NTuplizers/test/output_JMETriggerAnalysisNtuples_MHT_samples2023_v4
+```
+
+Merge output and harvest
+```
+analysis_postprocess.py analysis_output_JMETriggerAnalysisNtuples_MHT_samples2023_v4
+```
+
+Plot
+```
+plot.py analysis_output_JMETriggerAnalysisNtuples_MHT_samples2023_v4/
+```
+
 #### Setup
 
 * Update global environment variables:
