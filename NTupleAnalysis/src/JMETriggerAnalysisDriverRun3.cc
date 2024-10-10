@@ -13,6 +13,11 @@ JMETriggerAnalysisDriverRun3::JMETriggerAnalysisDriverRun3(const std::string& tf
 JMETriggerAnalysisDriverRun3::JMETriggerAnalysisDriverRun3(const std::string& outputFilePath, const std::string& outputFileMode)
   : JMETriggerAnalysisDriver(outputFilePath, outputFileMode) {}
 
+bool JMETriggerAnalysisDriverRun3::isLeadingJet(){
+  auto const& leadingJetEta = fabs((this->vector<float>("offlineAK4PFPuppiJetsCorrected_eta"))[0]);
+  return leadingJetEta > 3.0;
+}
+
 bool JMETriggerAnalysisDriverRun3::jetBelongsToCategory(const std::string& categLabel, const float jetPt, const float jetAbsEta, const float jetPhi, const float jetEta) const {
 
   bool ret(false);
@@ -95,32 +100,32 @@ void JMETriggerAnalysisDriverRun3::init(){
   jetCategoryLabels_ = {
     "_EtaIncl",
     //"_Eta2p5",
-    "_HB",
+    //"_HB",
     // "_HBPt0",
     // "_HBPt1",
     // "_HBPt2",
     // "_HBPt3",
     //"_HE",
-    "_HE1",
+    //"_HE1",
     // "_HE1Pt0",
     // "_HE1Pt1",
     // "_HE1Pt2",
     // "_HE1Pt3",
-    "_HE2",
+    //"_HE2",
     // "_HE2Pt0",
     // "_HE2Pt1",
     // "_HE2Pt2",
     // "_HE2Pt3",
-    "_HE21",
-    "_HE21Pt0",
-    "_HE21Pt1",
-    "_HE21Pt2",
-    "_HE21Pt3",
-    "_HE22",
-    "_HE22Pt0",
-    "_HE22Pt1",
-    "_HE22Pt2",
-    "_HE22Pt3",
+    //"_HE21",
+    //"_HE21Pt0",
+    //"_HE21Pt1",
+    //"_HE21Pt2",
+    //"_HE21Pt3",
+    //"_HE22",
+    //"_HE22Pt0",
+    //"_HE22Pt1",
+    //"_HE22Pt2",
+    //"_HE22Pt3",
     "_HF",
     // "_HFPt0",
     // "_HFPt1",
@@ -139,6 +144,7 @@ void JMETriggerAnalysisDriverRun3::init(){
   addTH1D("weight", 100, -5, 5);
 
   labelMap_jetAK4_.clear();
+  
   labelMap_jetAK4_ = {
     {"ak4GenJetsNoNu"                ,{{"hltCaloCorr", "hltAK4CaloJetsCorrected"},{"hltPFCorr", "hltAK4PFJetsCorrected"}}},
     //{"ak4GenJetsNoNu"                ,{{"hltCalo", "hltAK4CaloJets"},{"hltPF", "hltAK4PFJets"}}},
@@ -153,16 +159,17 @@ void JMETriggerAnalysisDriverRun3::init(){
     //{"hltAK4PFClusterJets"         , {{"GEN", "ak4GenJetsNoNu"}}},
     //{"hltAK4PFClusterJetsCorrected", {{"GEN", "ak4GenJetsNoNu"}}},
     //{"hltAK4PFJets"                , {{"GEN", "ak4GenJetsNoNu"}}},
-    {"hltAK4PFJetsCorrected"                , {{"GEN", "ak4GenJetsNoNu"}}},
-    //{"hltAK4PFJetsCorrected"       , {{"GEN", "ak4GenJetsNoNu"}, {"Offline", "offlineAK4PFPuppiJetsCorrected"}}},
+    //{"hltAK4PFJetsCorrected"                , {{"GEN", "ak4GenJetsNoNu"}}},
+    {"hltAK4PFJetsCorrected"       , {{"GEN", "ak4GenJetsNoNu"}, {"Offline", "offlineAK4PFPuppiJetsCorrected"}}},
     //{"hltAK4PFPuppiJets"           , {{"GEN", "ak4GenJetsNoNu"}}},
     //{"hltAK4PFPuppiJetsCorrected"  , {{"GEN", "ak4GenJetsNoNu"}, {"Offline", "offlineAK4PFPuppiJetsCorrected"}}},
     //{"offlineAK4PFCHSJetsCorrected"   , {{"GEN", "ak4GenJetsNoNu"}, {"HLT", "hltAK4PFJetsCorrected"}}},
     //{"offlineAK4PFPuppiJetsCorrected", {{"GEN", "ak4GenJetsNoNu"}, {"HLT", "hltAK4PFJetsCorrected"}}},
     // {"offlineAK4PFPuppiJets", {{"GEN", "ak4GenJetsNoNu"}}},
   };
-
+  
   labelMap_jetAK8_.clear();
+  /*
   labelMap_jetAK8_ = {
     {"ak8GenJetsNoNu"                ,{{"hltCaloCorr", "hltAK8CaloJetsCorrected"},{"hltPFCorr", "hltAK8PFJetsCorrected"}}},
     // {"ak8GenJetsNoNu",{
@@ -181,11 +188,11 @@ void JMETriggerAnalysisDriverRun3::init(){
     //{"hltAK8PFPuppiJets"           , {{"GEN", "ak8GenJetsNoNu"}}},
     //{"hltAK8PFPuppiJetsCorrected"  , {{"GEN", "ak8GenJetsNoNu"}}},
   };
-
+  */
   labelMap_MET_.clear();
   labelMap_MET_ = {
     //{"genMETCalo", {}},
-    //{"genMETTrue", {}},
+    {"genMETTrue", {}},
     //{"hltCaloMET"             , {{"GEN", "genMETCalo"}}},
     //{"hltCaloMETTypeOne"      , {{"GEN", "genMETCalo"}}},
     //{"hltPFClusterMET"        , {{"GEN", "genMETCalo"}}},
@@ -194,11 +201,11 @@ void JMETriggerAnalysisDriverRun3::init(){
     //{"hltPFMETTypeOne"        , {{"GEN", "genMETTrue"}}},
     //{"hltPFPuppiMET"          , {{"GEN", "genMETTrue"}}},
     //{"hltPFPuppiMETTypeOne"   , {{"GEN", "genMETTrue"}}},
-    //{"offlinePFPuppiMET", {}}
+    {"offlinePFPuppiMET", {}},
     //{"offlinePFMET_Raw"       , {{"GEN", "genMETTrue"}}},
-    //{"offlinePFMET_Type1"     , {{"GEN", "genMETTrue"}}},
+    {"offlinePFMET_Type1"     , {{"GEN", "genMETTrue"}}},
     //{"offlinePFPuppiMET_Raw"  , {{"GEN", "genMETTrue"}}},
-    //{"offlinePFPuppiMET_Type1", {{"GEN", "genMETTrue"}}},
+    {"offlinePFPuppiMET_Type1", {{"GEN", "genMETTrue"}}},
   };
 
   for(auto const& selLabel : {
@@ -226,17 +233,17 @@ void JMETriggerAnalysisDriverRun3::init(){
   }
 
   jettriggers = {
-  // "HLT_PFJet60",
-  // "HLT_PFJet80",
-  // "HLT_PFJet110",
-  // "HLT_PFJet140",
-  // "HLT_PFJet320",
-  // "HLT_PFJet500",
-  // "HLT_PFJetFwd60",
-  // "HLT_PFJetFwd80",
-  // "HLT_PFJetFwd140",
-  // "HLT_PFJetFwd320",
-  // "HLT_PFJetFwd500",
+		 //"HLT_PFJet60",
+   //"HLT_PFJet80",
+   //"HLT_PFJet110",
+   //"HLT_PFJet140",
+   //"HLT_PFJet320",
+   //"HLT_PFJet500",
+   //"HLT_PFJetFwd60",
+   //"HLT_PFJetFwd80",
+   //"HLT_PFJetFwd140",
+   //"HLT_PFJetFwd320",
+   //"HLT_PFJetFwd500",
   // "HLT_PFJet60",
   // //"HLT_PFJet110",
   // "HLT_PFJet140",
@@ -251,13 +258,13 @@ void JMETriggerAnalysisDriverRun3::init(){
   }
 
   httriggers = {
-  // "HLT_PFHT180",
-  // "HLT_PFHT250",
-  // "HLT_PFHT350",
-  // "HLT_PFHT510",
-  // "HLT_PFHT780",
-  // "HLT_PFHT890",
-  // "HLT_PFHT1050",
+		//"HLT_PFHT180",
+		//"HLT_PFHT250",
+		//"HLT_PFHT350",
+		//"HLT_PFHT510",
+		//"HLT_PFHT780",
+		//"HLT_PFHT890",
+		//"HLT_PFHT1050",
   // //"HLT_PFHT180",
   // //"HLT_PFHT250",
   // //"HLT_PFHT350",
@@ -276,12 +283,15 @@ void JMETriggerAnalysisDriverRun3::init(){
   }
 
   mettriggers = {
-  // "HLT_PFMET120_PFMHT120_IDTight",
-  // "HLT_PFMET140_PFMHT140_IDTight",
-  // "HLT_PFMETTypeOne140_PFMHT140_IDTight",
+   "HLT_PFMET120_PFMHT120_IDTight",
+   "HLT_PFMET140_PFMHT140_IDTight",
+   "HLT_PFMETTypeOne140_PFMHT140_IDTight",
   };
 
   for(auto const& selLabel : mettriggers){
+    for(auto const& jetLabel : labelMap_jetAK4_){
+      bookHistograms_Jets(selLabel, jetLabel.first, utils::mapKeys(jetLabel.second));
+    }
     for(auto const& metLabel : labelMap_MET_){
       bookHistograms_MET(selLabel, metLabel.first, utils::mapKeys(metLabel.second));
     }
@@ -461,10 +471,28 @@ void JMETriggerAnalysisDriverRun3::analyze(){
   // MET+MHT
   //fillHistograms_METMHT("NoSelection", wgt);
 
+  
   for(auto const& selLabel : mettriggers){
     auto const hltTrig = hasTTreeReaderValue(selLabel) ? value<bool>(selLabel) : hltMETTrigger(selLabel);
-    if(hltTrig){
-      fillHistograms_METMHT(selLabel, wgt);
+
+    for(auto const& jetLabel : labelMap_jetAK4_){
+      auto const jetPt1 = minAK4JetPt;
+      auto const jetPt2 = minAK4JetPtRef;
+
+      fillHistoDataJets fhDataAK4Jets;
+      fhDataAK4Jets.jetCollection = jetLabel.first;
+      fhDataAK4Jets.jetPtMin = jetPt1;
+      fhDataAK4Jets.jetAbsEtaMax = 5.0;
+      for(auto const& jetLabelRefs : jetLabel.second){
+	fhDataAK4Jets.matches.emplace_back(fillHistoDataJets::Match(jetLabelRefs.first, jetLabelRefs.second, jetPt2, maxAK4JetDeltaRmatchRef));
+      }
+
+      //if(isLeadingJet()){
+	if(hltTrig){
+	  fillHistograms_METMHT(selLabel, wgt);
+	  fillHistograms_Jets(selLabel, fhDataAK4Jets, wgt);
+	}
+	//}
     }
   }
 }

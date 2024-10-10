@@ -16,6 +16,8 @@ class JMETriggerAnalysisDriverRun3 : public JMETriggerAnalysisDriver {
   void analyze() override;
 
  protected:
+  bool isLeadingJet();
+
   bool jetBelongsToCategory(const std::string& categLabel, const float jetPt, const float jetAbsEta, const float jetPhi, const float jetEta) const override;
 
   void bookHistograms_Jets_2DMaps(const std::string& dir, const std::string& jetType1, const std::string& jetType2);
