@@ -11,11 +11,23 @@ from common.efficiency import *
 from common.plot import *
 from common.plot_style import *
 
+colors = list(range(20))
+colors.remove(0)
+colors.remove(3)
+colors.remove(5)
+
 COUNTER = 0
 def tmpName(increment=True):
   global COUNTER
   COUNTER += 1
   return 'tmp'+str(COUNTER)
+
+def printGraph(name,graph):
+    print("graph",name,"entries=",graph.GetN())
+    for i in range(0,graph.GetN()):
+        x = graph.GetPointX(i)
+        y = graph.GetPointY(i)
+        print("    ",i,x,y)
 
 def getHistogram(tfile, key):
   h0 = tfile.Get(key)
@@ -50,7 +62,6 @@ def getJetEfficiencies(fpath, hltThreshold_SingleJet):
     _tmp_num = _tfile.Get('HLT_PFJet'+hltThreshold_SingleJet+'/'+jetRefCollection+'_EtaIncl_pt0')
 
     _tmp_den = _tfile.Get('NoSelection/'+jetRefCollection+'_EtaIncl_pt0')
-
     ret['Puppi_SingleJet_wrt_'+_tmpRef] = get_efficiency_graph(_tmp_num, _tmp_den)
     ret['Puppi_SingleJet_wrt_'+_tmpRef].SetName('Puppi_SingleJet_wrt_'+_tmpRef)
 
@@ -123,10 +134,14 @@ def getMETEfficiencies(fpath, hltThreshold_MET):
     
     metRefCollection = 'offlinePFPuppiMET_Type1' if _tmpRef == 'Offline' else 'genMETTrue'
     
-    _tmp_num = _tfile.Get('HLT_PFMETTypeOne'+hltThreshold_MET+'_PFMHT'+hltThreshold_MET+'_IDTight'+'/'+metRefCollection+'_pt')
+    _tmp_num = _tfile.Get('HLT_PFMET'+hltThreshold_MET+'_PFMHT'+hltThreshold_MET+'_IDTight'+'/'+metRefCollection+'_pt')
 
     _tmp_den = _tfile.Get('NoSelection/'+metRefCollection+'_pt')
 
+    print('HLT_PFMET'+hltThreshold_MET+'_PFMHT'+hltThreshold_MET+'_IDTight'+'/'+metRefCollection+'_pt')
+    print('NoSelection/'+metRefCollection+'_pt')
+    print("check num",_tmp_num.Integral())
+    print("check den",_tmp_den.Integral())
     # _tmp_num = _tfile.Get('HLT_PFMETTypeOne'+hltThreshold_MET+'_PFMHT'+hltThreshold_MET+'_IDTight'+'/offlinePFPuppiMET_Type1_pt')
 
     # _tmp_den = _tfile.Get('NoSelection/offlinePFPuppiMET_Type1_pt')
@@ -191,22 +206,28 @@ if __name__ == '__main__':
 
 #  ROOT.TH1.AddDirectory(False)
 
+  ### args validation ---
+
+  inputDir = opts.inputDir
+
+  recosList = {}
+  recosList['default'] = os.path.join(inputDir,'testMHT.root')
+  #recosList = ['test_noCustom', 'test_wrongJECs', 'test_correctJECs']
+  efficiencyPlotting(recosList,opts)
+
+def efficiencyPlotting(recosList,opts):
+
   theStyle = get_style(0)
   theStyle.cd()
 
   EXTS = list(set(opts.exts))
 
-  ### args validation ---
-
-  inputDir = opts.inputDir
-  
-  recosList = ['test_noCustom', 'test_wrongJECs', 'test_correctJECs']
   outputDir = opts.output
   MKDIRP(opts.output, verbose = (opts.verbosity > 0), dry_run = opts.dry_run)
 
   ## SingleJet
 
-  for _tmpJetThresh in ['60','140', '320', '500']:
+  for _tmpJetThresh in []:#'60','140', '320', '500']:
     print ('='*110)
     print ('\033[1m'+_tmpJetThresh+'\033[0m')
     print ('='*110)
@@ -217,9 +238,11 @@ if __name__ == '__main__':
 
     effysJet[_tmpJetThresh] = {}
 
-    for _tmpReco in recosList:
+    for _tmpReco in recosList.keys:
       effysJet[_tmpJetThresh][_tmpReco] = getJetEfficiencies(
-        fpath = inputDir+'/'+_tmpReco+'/HLT_Run3TRK/harvesting/Run3Winter23_QCD_Pt15to7000_13p6TeV_PU65.root',
+####        fpath = inputDir+'/'+_tmpReco+'/HLT_Run3TRK/harvesting/Run3Winter23_QCD_Pt15to7000_13p6TeV_PU65.root',
+#        fpath = os.path.join(inputDir,'testMHT.root'),
+        fpath = recosList[_tmpReco],
         hltThreshold_SingleJet = _tmpJetThresh,
       )
 
@@ -324,7 +347,7 @@ if __name__ == '__main__':
     
 
   ## HT
-  for _tmpHTThresh in ['780', '890', '1050']:
+  for _tmpHTThresh in []:#'780', '890', '1050']:
     print ('='*110)
     print ('\033[1m'+_tmpHTThresh+'\033[0m')
     print ('='*110)
@@ -442,7 +465,7 @@ if __name__ == '__main__':
 
   ## MET
   
-  for _tmpMETThresh in ['140']:
+  for _tmpMETThresh in ['120']: # <- .,.
     print ('='*110)
     print ('\033[1m'+_tmpMETThresh+'\033[0m')
     print ('='*110)
@@ -455,8 +478,9 @@ if __name__ == '__main__':
 
     for _tmpReco in recosList:
       effysMET[_tmpMETThresh][_tmpReco] = getMETEfficiencies(
-        fpath = inputDir+'/'+_tmpReco+'/HLT_Run3TRK/harvesting/Run3Winter23_VBF_HToInvisible_13p6TeV_PU65.root',
-          hltThreshold_MET = _tmpMETThresh,
+        fpath = recosList[_tmpReco],
+        #fpath = inputDir+'/'+_tmpReco+'/HLT_Run3TRK/harvesting/Run3Winter23_VBF_HToInvisible_13p6TeV_PU65.root', #<- .,.
+        hltThreshold_MET = _tmpMETThresh,
       )
 
     for _tmpRef in [
@@ -477,15 +501,26 @@ if __name__ == '__main__':
           canvas.cd()
   
           h0 = canvas.DrawFrame(0, 0.0001, 500, 1.19)
-  
+
+          for i,task in enumerate(recosList.keys()):
+            #print("check task loop",_tmpMETThresh,task,_tmpType+_tmpAlgo+'_wrt_'+_tmpRef)
+            #print("check type",type(effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef]))
+            #printGraph(task,effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef])
+            effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerSize(1)
+            effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineWidth(2)
+            effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerColor(colors[i])
+            effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineColor(colors[i])
+            effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineStyle(1)
+            effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].Draw('lepz')
+          """
           try:
-            effysMET[_tmpMETThresh]['test_noCustom'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerSize(1)
-            effysMET[_tmpMETThresh]['test_noCustom'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineWidth(2)
-            effysMET[_tmpMETThresh]['test_noCustom'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerColor(1)
-            effysMET[_tmpMETThresh]['test_noCustom'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineColor(1)
-            effysMET[_tmpMETThresh]['test_noCustom'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineStyle(1)
-            effysMET[_tmpMETThresh]['test_noCustom'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].Draw('lepz')
-    
+            effysMET[_tmpMETThresh]['default'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerSize(1)
+            effysMET[_tmpMETThresh]['default'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineWidth(2)
+            effysMET[_tmpMETThresh]['default'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerColor(1)
+            effysMET[_tmpMETThresh]['default'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineColor(1)
+            effysMET[_tmpMETThresh]['default'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineStyle(1)
+            effysMET[_tmpMETThresh]['default'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].Draw('lepz')
+
             effysMET[_tmpMETThresh]['test_wrongJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerSize(1)
             effysMET[_tmpMETThresh]['test_wrongJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineWidth(2)
             effysMET[_tmpMETThresh]['test_wrongJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetMarkerColor(2)
@@ -499,9 +534,9 @@ if __name__ == '__main__':
             effysMET[_tmpMETThresh]['test_correctJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineColor(4)
             effysMET[_tmpMETThresh]['test_correctJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].SetLineStyle(1)
             effysMET[_tmpMETThresh]['test_correctJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef].Draw('lepz')
-    
+
           except: pass
-  
+          """
           topLabel = ROOT.TPaveText(0.11, 0.93, 0.95, 0.98, 'NDC')
           topLabel.SetFillColor(0)
           topLabel.SetFillStyle(1001)
@@ -512,7 +547,7 @@ if __name__ == '__main__':
           topLabel.SetBorderSize(0)
           topLabel.AddText('#font[61]{CMS} #font[52]{Run-3 Simulation} VBF H #rightarrow Inv. PU 65')
           topLabel.Draw('same')
-  
+
           objLabel = ROOT.TPaveText(0.80, 0.93, 0.96, 0.98, 'NDC')
           objLabel.SetFillColor(0)
           objLabel.SetFillStyle(1001)
@@ -532,8 +567,20 @@ if __name__ == '__main__':
           l1tRateLabel.SetTextFont(42)
           l1tRateLabel.SetTextSize(0.035)
           l1tRateLabel.SetBorderSize(0)
-          l1tRateLabel.AddText('HLT_PF'+_tmpAlgo+_tmpMETThresh+'_PFMHT'+_tmpMETThresh+'_IDTight')
+          #l1tRateLabel.AddText('HLT_PF'+_tmpAlgo+_tmpMETThresh+'_PFMHT'+_tmpMETThresh+'_IDTight')
+          l1tRateLabel.AddText('HLT_PFMET'+_tmpMETThresh+'_PFMHT'+_tmpMETThresh+'_IDTight')
           l1tRateLabel.Draw('same')
+
+          extratext = ROOT.TPaveText(0.6, 0.5, 0.75, 0.56, 'NDC')
+          extratext.SetFillColor(0)
+          extratext.SetFillStyle(1001)
+          extratext.SetTextColor(ROOT.kBlack)
+          extratext.SetTextAlign(12)
+          extratext.SetTextFont(42)
+          extratext.SetTextSize(0.035)
+          extratext.SetBorderSize(0)
+          extratext.AddText('Leading jet |eta| > 3.0');
+          #extratext.Draw('same')
 
           leg1 = ROOT.TLegend(0.50, 0.20, 0.84, 0.44)
           leg1.SetFillStyle(0)
@@ -542,23 +589,24 @@ if __name__ == '__main__':
           leg1.SetTextFont(42)
           leg1.SetTextSize(0.05)
           leg1.SetEntrySeparation(0.2)
-          try:
-            leg1.AddEntry(effysMET[_tmpMETThresh]['test_noCustom'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], 'Default', 'lp')
-            leg1.AddEntry(effysMET[_tmpMETThresh]['test_correctJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], 'HCAL update', 'lp')
-            #leg1.AddEntry(effysMET[_tmpMETThresh]['test_wrongJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], 'HCAL update+condDB Calibs', 'lp')
-            #leg1.AddEntry(effysMET[_tmpMETThresh]['test_correctJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], 'HCAL update+fixed Calibs', 'lp')
-          except: pass
-          leg1.Draw('same')
-  
+          for task in recosList.keys():
+            try:
+              leg1.AddEntry(effysMET[_tmpMETThresh][task][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], task, 'lp')
+              #leg1.AddEntry(effysMET[_tmpMETThresh]['test_correctJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], 'HCAL update', 'lp')
+              #leg1.AddEntry(effysMET[_tmpMETThresh]['test_wrongJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], 'HCAL update+condDB Calibs', 'lp')
+              #leg1.AddEntry(effysMET[_tmpMETThresh]['test_correctJECs'][_tmpType+_tmpAlgo+'_wrt_'+_tmpRef], 'HCAL update+fixed Calibs', 'lp')
+            except: pass
+            leg1.Draw('same')
+
           h0.SetTitle(';'+_tmpRef+' p_{T}^{miss} [GeV];Efficiency')
           h0.GetYaxis().SetTitleOffset(h0.GetYaxis().GetTitleOffset() * 1.0)
-  
+
           canvas.SetLogy(0)
           canvas.SetGrid(1, 1)
-  
+
           for _tmpExt in EXTS:
             canvas.SaveAs(outputDir+'/triggerEff_'+_tmpType+_tmpAlgo+'_wrt'+_tmpRef+'_'+_tmpMETThresh+'.'+_tmpExt)
-  
+
           canvas.Close()
   
           print ('\033[1m'+outputDir+'/triggerEff_'+_tmpType+_tmpAlgo+'_wrt'+_tmpRef+'_'+_tmpMETThresh+'\033[0m')
