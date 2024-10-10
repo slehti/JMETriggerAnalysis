@@ -1031,11 +1031,12 @@ void JMETriggerAnalysisDriver::fillHistograms_Jets(const std::string& dir,
       if(v_pt->at(jetIdx) > 30){ // add only contributions with above 30GeV for HT
         sumPt += v_pt->at(jetIdx);
       }
-      if(v_pt->at(jetIdx) > 15){ // add only contributions with above 30GeV for MHT
+      if(v_pt->at(jetIdx) > 20){ // add only contributions with above 30GeV for MHT
+	//if(std::abs(v_eta->at(jetIdx)) >= 3.0 && v_pt->at(jetIdx) < 30) continue; // MODIFIED HF MHT
         sumPx += v_pt->at(jetIdx) * std::cos(v_phi->at(jetIdx));
         sumPy += v_pt->at(jetIdx) * std::sin(v_phi->at(jetIdx));
       }
-      
+
       // modification start
       H1(dirPrefix + fhData.jetCollection + catLabel + "_simNPU")->Fill(simNPU, weight);
       // modification end 
