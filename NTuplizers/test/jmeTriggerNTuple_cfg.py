@@ -83,6 +83,16 @@ if opts.reco == 'default':
 
 elif opts.reco == 'MHT_eta30pt25':
   from JMETriggerAnalysis.Common.configs.HLT_dev_CMSSW_14_0_0_GRun_configDump_eta30pt25 import cms, process
+elif opts.reco == 'caloTowers_thresholds':
+  from JMETriggerAnalysis.Common.configs.HLT_dev_CMSSW_14_0_0_GRun_configDump import cms, process
+  from HLTrigger.Configuration.common import producers_by_type
+  for producer in producers_by_type(process, "CaloTowersCreator"):
+        producer.EcalRecHitThresh = cms.bool(True)
+  update_jmeCalibs = True
+
+elif opts.reco == 'testMHT':
+  from JMETriggerAnalysis.Common.configs.HLT_dev_CMSSW_14_0_0_GRun_configDump import cms, process
+
   # customize MHT definition 
   #from HLTrigger.Configuration.customizeHLTforMHT import customizeHLTforMHTeta30pt25
   #process = customizeHLTforMHTeta30pt25(process)
@@ -172,69 +182,51 @@ if hasattr(process, 'FastTimerService'):
 
 if update_jmeCalibs:
   ## ES modules for PF-Hadron Calibrations
-  process.pfhcESSource = cms.ESSource('PoolDBESSource',
-    _CondDB.clone(connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/JMETriggerAnalysis/NTuplizers/test/PFCalibration.db'),
-    #_CondDB.clone(connect = 'sqlite_file:PFCalibration.db'),
-    toGet = cms.VPSet(
-      cms.PSet(
-        record = cms.string('PFCalibrationRcd'),
-        tag = cms.string('PFCalibration_CMSSW_13_0_0_HLT_126X_v6_mcRun3_2023'),
-        label = cms.untracked.string('HLT'),
-      ),
-    ),
-  )
-  process.pfhcESPrefer = cms.ESPrefer('PoolDBESSource', 'pfhcESSource')
+  #process.pfhcESSource = cms.ESSource('PoolDBESSource',
+  #  _CondDB.clone(connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/JMETriggerAnalysis/NTuplizers/test/PFCalibration.db'),
+  #  #_CondDB.clone(connect = 'sqlite_file:PFCalibration.db'),
+  #  toGet = cms.VPSet(
+  #    cms.PSet(
+  #      record = cms.string('PFCalibrationRcd'),
+  #      tag = cms.string('PFCalibration_CMSSW_13_0_0_HLT_126X_v6_mcRun3_2023'),
+  #      label = cms.untracked.string('HLT'),
+  #    ),
+  #  ),
+  #)
+  #process.pfhcESPrefer = cms.ESPrefer('PoolDBESSource', 'pfhcESSource')
   #process.hltParticleFlow.calibrationsLabel = '' # standard label for Offline-PFHC in GT
 
   ##ES modules for HLT JECs
   process.jescESSource = cms.ESSource('PoolDBESSource',
     #_CondDB.clone(connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/JMETriggerAnalysis/NTuplizers/test/Run3Winter23Digi.db'),
-    _CondDB.clone(connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/JMETriggerAnalysis/NTuplizers/test/Run3Winter23Digi_OfflinePFHC.db'),
+    _CondDB.clone(connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/JMETriggerAnalysis/NTuplizers/test/WCalo_Run3Winter24Digi.db'),
     #_CondDB.clone(connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/JMETriggerAnalysis/NTuplizers/test/Run3Winter23Digi_OfflinePFHC_skipFwd.db'),
     #_CondDB.clone(connect = 'sqlite_file:Run3Winter23Digi.db'),
     toGet = cms.VPSet(
       cms.PSet(
         record = cms.string('JetCorrectionsRecord'),
-        tag = cms.string('JetCorrectorParametersCollection_Run3Winter23Digi_AK4CaloHLT'),
+        tag = cms.string('JetCorrectorParametersCollection_Run3Winter24Digi_AK4CaloHLT'),
         label = cms.untracked.string('AK4CaloHLT'),
       ),
       cms.PSet(
         record = cms.string('JetCorrectionsRecord'),
-        tag = cms.string('JetCorrectorParametersCollection_Run3Winter23Digi_AK4PFHLT'),
+        tag = cms.string('JetCorrectorParametersCollection_Run3Winter24Digi_AK4PFHLT'),
         label = cms.untracked.string('AK4PFHLT'),
       ),
       cms.PSet(
         record = cms.string('JetCorrectionsRecord'),
-        tag = cms.string('JetCorrectorParametersCollection_Run3Winter23Digi_AK8CaloHLT'),
+        tag = cms.string('JetCorrectorParametersCollection_Run3Winter24Digi_AK8CaloHLT'),
         label = cms.untracked.string('AK8CaloHLT'),
       ),
       cms.PSet(
         record = cms.string('JetCorrectionsRecord'),
-        tag = cms.string('JetCorrectorParametersCollection_Run3Winter23Digi_AK8PFHLT'),
+        tag = cms.string('JetCorrectorParametersCollection_Run3Winter24Digi_AK8PFHLT'),
         label = cms.untracked.string('AK8PFHLT'),
       ),
     ),
   )
   process.jescESPrefer = cms.ESPrefer('PoolDBESSource', 'jescESSource')
 
-# else:
-#   ## ES modules for HLT JECs
-#   process.jescESSource = cms.ESSource('PoolDBESSource',
-#     _CondDB.clone(connect = 'sqlite_file:'+os.environ['CMSSW_BASE']+'/src/JMETriggerAnalysis/NTuplizers/test/JESC_Run3Winter23Digi.db'),
-#     toGet = cms.VPSet(
-#       cms.PSet(
-#         record = cms.string('JetCorrectionsRecord'),
-#         tag = cms.string('JetCorrectorParametersCollection_Run3Winter23Digi_AK4PFHLT'),#!!
-#         label = cms.untracked.string('AK4PFchsHLT'),
-#       ),
-#       cms.PSet(
-#         record = cms.string('JetCorrectionsRecord'),
-#         tag = cms.string('JetCorrectorParametersCollection_Run3Winter23Digi_AK8PFHLT'),#!!
-#         label = cms.untracked.string('AK8PFchsHLT'),
-#       ),
-#     ),
-#   )
-#   process.jescESPrefer = cms.ESPrefer('PoolDBESSource', 'jescESSource')
 
 
 ## Output NTuple
@@ -289,8 +281,8 @@ process.JMETriggerNTuple = cms.EDAnalyzer('JMETriggerNTuple',
     hltAK4CaloJets = cms.InputTag('hltAK4CaloJets'),
     hltAK4CaloJetsCorrected = cms.InputTag('hltAK4CaloJetsCorrected'),
 
-    hltAK8CaloJets = cms.InputTag('hltAK8CaloJets'),
-    hltAK8CaloJetsCorrected = cms.InputTag('hltAK8CaloJetsCorrected'),
+    #hltAK8CaloJets = cms.InputTag('hltAK8CaloJets'),
+    #hltAK8CaloJetsCorrected = cms.InputTag('hltAK8CaloJetsCorrected'),
   ),
 
 # recoPFClusterJetCollections = cms.PSet(
@@ -313,8 +305,8 @@ process.JMETriggerNTuple = cms.EDAnalyzer('JMETriggerNTuple',
     #hltAK4PFPuppiJets = cms.InputTag('hltAK4PFPuppiJets'),
     #hltAK4PFPuppiJetsCorrected = cms.InputTag('hltAK4PFPuppiJetsCorrected'),
 
-    hltAK8PFJets = cms.InputTag('hltAK8PFJets'),
-    hltAK8PFJetsCorrected = cms.InputTag('hltAK8PFJetsCorrected'),
+    #hltAK8PFJets = cms.InputTag('hltAK8PFJets'),
+    #hltAK8PFJetsCorrected = cms.InputTag('hltAK8PFJetsCorrected'),
 
     #hltAK8PFCHSJets = cms.InputTag('hltAK8PFCHSJets'),
     #hltAK8PFCHSJetsCorrected = cms.InputTag('hltAK8PFCHSJetsCorrected'),
@@ -327,7 +319,7 @@ process.JMETriggerNTuple = cms.EDAnalyzer('JMETriggerNTuple',
 
     #offlineAK4PFCHSJetsCorrected = cms.InputTag('slimmedJets'),
     offlineAK4PFPuppiJetsCorrected = cms.InputTag('slimmedJetsPuppi'),
-    offlineAK8PFPuppiJetsCorrected = cms.InputTag('slimmedJetsAK8'),
+    #offlineAK8PFPuppiJetsCorrected = cms.InputTag('slimmedJetsAK8'),
   ),
 
   recoGenMETCollections = cms.PSet(
@@ -350,7 +342,7 @@ process.JMETriggerNTuple = cms.EDAnalyzer('JMETriggerNTuple',
 
   recoPFMETCollections = cms.PSet(
 
-    #hltPFMET = cms.InputTag('hltPFMETProducer'),
+    hltPFMET = cms.InputTag('hltPFMETProducer'),
     #hltPFMETTypeOne = cms.InputTag('hltPFMETTypeOne'),
 
     #hltPFCHSMET = cms.InputTag('hltPFCHSMET'),
@@ -367,7 +359,7 @@ process.JMETriggerNTuple = cms.EDAnalyzer('JMETriggerNTuple',
   ),
 
   recoMuonCollections = cms.PSet(
-    hltMuons = cms.InputTag('hltIterL3Muons'), # this collection uses the miniAOD definition muon::isLooseTriggerMuon(reco::Muon)
+    #hltMuons = cms.InputTag('hltIterL3Muons'), # this collection uses the miniAOD definition muon::isLooseTriggerMuon(reco::Muon)
   )
 )
 
@@ -416,7 +408,8 @@ if opts.inputFiles:
 else:
   process.source.fileNames = [
     #'/store/mc/Run3Summer23BPixMiniAODv4/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/MINIAODSIM/130X_mcRun3_2023_realistic_postBPix_v6-v2/2830000/0d367f04-06bc-407c-a118-0e1d14974b87.root'
-    '/store/mc/Run3Summer23BPixMiniAODv4/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/MINIAODSIM/130X_mcRun3_2023_realistic_postBPix_v6-v2/2830000/1c1439be-73ca-41ed-a72d-751ac7c3d317.root'
+    #'/store/mc/Run3Summer23BPixMiniAODv4/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/MINIAODSIM/130X_mcRun3_2023_realistic_postBPix_v6-v2/2830000/1c1439be-73ca-41ed-a72d-751ac7c3d317.root'
+    '/store/relval/CMSSW_14_0_9/RelValQCD_Pt15To7000_Flat_14/GEN-SIM-DIGI-RAW/PU_140X_mcRun3_2024_realistic_EOR3_TkDPGv6_RV245_2024-v1/2580000/0008bc3f-5e69-45fb-a46d-103c9ee4c9aa.root'
     #'/store/mc/Run3Summer23BPixDRPremix/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/GEN-SIM-RAW/130X_mcRun3_2023_realistic_postBPix_v6-v2/2830000/00500cd3-78c5-44f0-959e-87343b2f925b.root'
     #'/store/mc/Run3Winter24Digi/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/GEN-SIM-RAW/133X_mcRun3_2024_realistic_v9-v3/50000/017d210f-c527-402b-8e13-e6119e79fe6c.root'
     #'/store/mc/Run3Winter23MiniAOD/QCD_PT-15to7000_TuneCP5_13p6TeV_pythia8/MINIAODSIM/FlatPU0to80_126X_mcRun3_2023_forPU65_v1-v2/2540000/10e9c9ff-b431-42c5-a1ec-e3143eafee20.root',
