@@ -78,7 +78,8 @@ opts.parseArguments()
 update_jmeCalibs = False
 
 #from JMETriggerAnalysis.Common.configs.hltData import cms, process
-from JMETriggerAnalysis.Common.configs.HLT_dev_CMSSW_14_0_0_GRun_configDump import cms, process
+#from JMETriggerAnalysis.Common.configs.HLT_dev_CMSSW_14_0_0_GRun_configDump import cms, process
+from JMETriggerAnalysis.Common.configs.HLT_dev_CMSSW_14_0_0_GRun_configDump_data import cms, process
 print("Using reco option",opts.reco)
 if opts.reco == 'default':
   #from JMETriggerAnalysis.Common.configs.HLT_dev_CMSSW_14_0_0_GRun_configDump import cms, process
