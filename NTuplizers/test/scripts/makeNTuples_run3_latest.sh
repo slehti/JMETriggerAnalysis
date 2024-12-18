@@ -11,36 +11,27 @@ fi
 NEVT=500000
 
 
-<<<<<<< HEAD
 OUTPUT_DIR_EOS=/eos/user/${USER:0:1}/${USER}/JMETriggerAnalysisNtuples_${1}
 ODIR=output_JMETriggerAnalysisNtuples_${1}
-=======
-OUTPUT_DIR_EOS=/eos/user/${USER:0:1}/${USER}/samples2023
-ODIR=${1}
->>>>>>> theo/run3_14_0_X
 
 
 declare -A samplesMap
 
 # QCD 
-samplesMap["Run3Winter23_QCD_Pt15to7000_13p6TeV_PU65"]='/QCD_Pt-15to7000_TuneCP5_Flat_13p6TeV_pythia8/Run3Winter24MiniAOD-NoPU_133X_mcRun3_2024_realistic_v9-v2/MINIAODSIM'
+#samplesMap["Run3Winter23_QCD_Pt15to7000_13p6TeV_PU65"]='/QCD_PT-15to7000_TuneCP5_13p6TeV_pythia8/Run3Winter23MiniAOD-126X_mcRun3_2023_forPU65_v1-v2/MINIAODSIM'
 
-# 
-# 
 # VBF H(125)->Invisible
 #samplesMap["Run3Winter23_VBF_HToInvisible_13p6TeV_PU65"]="/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/Run3Winter24MiniAOD-133X_mcRun3_2024_realistic_v9-v3/MINIAODSIM"
 #samplesMap["Run3Summer23BPix_VBF_HToInvisible"]="/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer23BPixMiniAODv4-130X_mcRun3_2023_realistic_postBPix_v6-v2/MINIAODSIM"
 #"/VBFHToInvisible_M-125_TuneCP5_13p6TeV_powheg-pythia8/Run3Summer23BPixDRPremix-130X_mcRun3_2023_realistic_postBPix_v6-v2/GEN-SIM-RAW"
+samplesMap["Muon0_Run2024Iv1"]="/Muon0/Run2024I-PromptReco-v1/MINIAOD"
+#samplesMap["Muon0_Run2024Iv2"]="/Muon0/Run2024I-PromptReco-v2/MINIAOD"
+#samplesMap["Muon0_Run2024F"]="/Muon0/Run2024F-PromptReco-v1/MINIAOD"
 
-
-#recoKeys=(
-#    default
-#    MHT_eta30pt25
-#    MHT_eta30pt30
-#}
 recoKeys=(
-  default
-  caloTowers_thresholds
+    default
+    MHT_eta30pt25
+    MHT_eta30pt30
 )
 
 if [ -d ${OUTPUT_DIR_EOS}/${ODIR} ]; then
@@ -60,7 +51,7 @@ fi
 
 
 for recoKey in "${recoKeys[@]}"; do
-  python3 ${CMSSW_BASE}/src/JMETriggerAnalysis/NTuplizers/test/jmeTriggerNTuple_cfg.py dumpPython=.tmp_cfg.py reco=${recoKey}
+  python3 ${CMSSW_BASE}/src/JMETriggerAnalysis/NTuplizers/test/jmeTriggerNTuple_cfg.py dumpPython=.tmp_cfg.py 
 
   for sampleKey in ${!samplesMap[@]}; do
     sampleName=${samplesMap[${sampleKey}]}
@@ -77,9 +68,9 @@ for recoKey in "${recoKeys[@]}"; do
     mkdir -p ${FINAL_OUTPUT_DIR}
     
     if [ -d ${ODIR}/${recoKey}/${sampleKey} ]; then rm -rf ${ODIR}/${recoKey}/${sampleKey}; fi
-    
+
     bdriver -c .tmp_cfg.py --customize-cfg -m ${numEvents} -n 1000 --memory 2G --time 02:00:00 \
-      -d ${sampleName} -p 2 -o ${ODIR}/${recoKey}/${sampleKey} \
+      -d ${sampleName} -p 1 -o ${ODIR}/${recoKey}/${sampleKey} \
       --final-output ${FINAL_OUTPUT_DIR} \
       --submit \
       --customise-commands \
