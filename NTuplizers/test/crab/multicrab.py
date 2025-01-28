@@ -234,7 +234,8 @@ def create(opts,args):
         file.write("config.Data.unitsPerJob = 200\n")
         file.write("config.Data.totalUnits = -1\n")
         file.write("\n")
-        file.write("config.Data.lumiMask = \'%s\'\n"%(os.path.join(dIN,lumiJSON)))
+        if len(lumiJSON) > 0:
+            file.write("config.Data.lumiMask = \'%s\'\n"%(os.path.join(dIN,lumiJSON)))
         file.write("config.Data.outLFNDirBase = \'/store/user/%s/%s/%s\'\n"%(USER,STOREDIR,name))
         file.write("\n")
         file.write("config.section_(\'Site\')\n")
