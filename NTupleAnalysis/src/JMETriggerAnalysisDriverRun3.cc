@@ -545,7 +545,7 @@ void JMETriggerAnalysisDriverRun3::analyze(){
 
   
   for(auto const& selLabel : mettriggers){
-    auto const hltTrig = hasTTreeReaderValue(selLabel) ? value<bool>(selLabel) : hltMETTrigger(selLabel);
+    auto const hltTrig = hasTTreeReaderValue(selLabel) ? value<bool>(selLabel) : false; //hltMETTrigger(selLabel);
 
     for(auto const& jetLabel : labelMap_jetAK4_){
       auto const jetPt1 = minAK4JetPt;
