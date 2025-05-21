@@ -431,8 +431,7 @@ if opts.inputFiles:
   process.source.fileNames = opts.inputFiles
 else:
   process.source.fileNames = [
-    '/store/mc/Run3Winter25Digi/QCD_Bin-Pt-15to7000_TuneCP5_13p6TeV_pythia8/GEN-SIM-RAW/FlatPU0to120_142X_mcRun3_2025_realistic_v7-v3/90000/01264d3b-3e70-4995-aeea-ce434d408b6e.root'
-
+    '/store/mc/Run3Winter25Digi/QCD_Bin-PT-15to7000_Par-PT-flat2022_TuneCP5_13p6TeV_pythia8/GEN-SIM-RAW/FlatPU0to120_142X_mcRun3_2025_realistic_v9-v4/2520000/00491803-ed8e-4011-bfc1-e503706c64f8.root'
   ]
 
 # input EDM files [secondary]
