@@ -43,7 +43,7 @@ samples_muons = {
   'Muon0_Run2024F':["/Muon0/Run2024F-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024F_Golden.json","140X_dataRun3_Prompt_v4"],
   'Muon0_Run2024G':["/Muon0/Run2024G-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024G_Golden.json","140X_dataRun3_Prompt_v4"],
   'Muon0_Run2024H':["/Muon0/Run2024H-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024H_Golden.json","140X_dataRun3_Prompt_v4"],
-  'Muon0_Run2024I':["/Muon0/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunI_V2_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+  'Muon0_Run2024I':["/Muon0/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
   
   #2024 Muon1
   'Muon1_Run2024B':["/Muon1/Run2024B-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024B_Golden.json","140X_dataRun3_Prompt_v2"],
@@ -54,7 +54,7 @@ samples_muons = {
   'Muon1_Run2024F':["/Muon1/Run2024F-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024F_Golden.json","140X_dataRun3_Prompt_v4"],
   'Muon1_Run2024G':["/Muon1/Run2024G-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024G_Golden.json","140X_dataRun3_Prompt_v4"],
   'Muon1_Run2024H':["/Muon1/Run2024H-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024H_Golden.json","140X_dataRun3_Prompt_v4"],
-  'Muon1_Run2024I':["/Muon1/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunI_V2_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+  'Muon1_Run2024I':["/Muon1/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
   
   #2025 Muon0
   'Muon0_Run2025B':["/Muon0/Run2025B-PromptReco-v1/MINIAOD","","Collisions25/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions25_13p6TeV_Latest.json","150X_dataRun3_Prompt_v1"],
@@ -103,7 +103,7 @@ samples = {
   'JetMET0_Run2024F':["/JetMET0/Run2024F-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024F_Golden.json","140X_dataRun3_Prompt_v4"],
   'JetMET0_Run2024G':["/JetMET0/Run2024G-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024G_Golden.json","140X_dataRun3_Prompt_v4"],
   'JetMET0_Run2024H':["/JetMET0/Run2024H-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024H_Golden.json","140X_dataRun3_Prompt_v4"],
-  'JetMET0_Run2024I':["/JetMET0/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunI_V2_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+  'JetMET0_Run2024I':["/JetMET0/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
   
   #2024 JetMET1
   'JetMET1_Run2024B':["/JetMET1/Run2024B-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024B_Golden.json","140X_dataRun3_Prompt_v2"],
@@ -114,7 +114,7 @@ samples = {
   'JetMET1_Run2024F':["/JetMET1/Run2024F-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024F_Golden.json","140X_dataRun3_Prompt_v4"],
   'JetMET1_Run2024G':["/JetMET1/Run2024G-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024G_Golden.json","140X_dataRun3_Prompt_v4"],
   'JetMET1_Run2024H':["/JetMET1/Run2024H-PromptReco-v1/MINIAOD","Summer23BPixPrompt23_V1_MC","Collisions24/2024H_Golden.json","140X_dataRun3_Prompt_v4"],
-  'JetMET1_Run2024I':["/JetMET1/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunI_V2_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+  'JetMET1_Run2024I':["/JetMET1/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
 
   #2025 Muon0
   'JetMET0_Run2025B':["/JetMET0/Run2025B-PromptReco-v1/MINIAOD","","Collisions25/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions25_13p6TeV_Latest.json","150X_dataRun3_Prompt_v1"],
