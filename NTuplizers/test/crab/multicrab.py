@@ -166,7 +166,7 @@ def create(opts,args):
         if i < len(runs)-1:
             s_runs += '_'
 
-    STOREDIR = 'CoffTeaNTuples'+'_v'+version+'_'+s_runs+'_'+time
+    STOREDIR = 'CoffTeaNTuples'+'_v'+version+'_'+s_runs+'_'+time+"_noJECs"
     if os.path.exists(opts.dirName):
         STOREDIR = opts.dirName
     else:
@@ -300,6 +300,11 @@ def status(opts,args):
     reportDict = {}
     status_re = re.compile("\s+(?P<report>(?P<string>failed|finished|idle|transferring|running)\s+\S+\s+\(\s*(?P<value>\d+)/(?P<all>\d+)\s*\))")
     for taskdir in taskdirs:
+        if opts.kill:
+            result = Execute("crab kill %s"%taskdir)
+            for r in result:
+                print(r)
+            continue
         result = Execute("crab status %s"%taskdir)
         if not silent:
             for line in result:
@@ -396,7 +401,7 @@ def main(opts,args):
         listdatasets(opts,args)
         sys.exit()
 
-    if opts.status or opts.resubmit:
+    if opts.status or opts.resubmit or opts.kill:
         status(opts,args)
     else:
         create(opts,args)
@@ -410,6 +415,8 @@ if __name__=="__main__":
                       help="Flag to check the status of CRAB jobs")
     parser.add_option("--resubmit", dest="resubmit", default=False, action="store_true",
                       help="Flag to resubmit CRAB jobs")
+    parser.add_option("--kill", dest="kill", default=False, action="store_true",
+                      help="Flag to kill CRAB jobs")
     parser.add_option("-i", "--include", dest="includeTasks", default="None", type="string",
                       help="Only perform action for this dataset(s) [default: \"\"]")
     parser.add_option("-e", "--exclude", dest="excludeTasks", default="None", type="string",
