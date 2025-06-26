@@ -166,7 +166,7 @@ def create(opts,args):
         if i < len(runs)-1:
             s_runs += '_'
 
-    STOREDIR = 'CoffTeaNTuples'+'_v'+version+'_'+s_runs+'_'+time+"_noJECs"
+    STOREDIR = 'CoffTeaNTuples'+'_v'+version+'_'+s_runs+'_'+time
     if os.path.exists(opts.dirName):
         STOREDIR = opts.dirName
     else:
