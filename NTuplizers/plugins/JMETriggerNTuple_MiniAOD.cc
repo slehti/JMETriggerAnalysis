@@ -31,6 +31,7 @@
 #include "JMETriggerAnalysis/NTuplizers/interface/PATMETCollectionContainer.h"
 #include "JMETriggerAnalysis/NTuplizers/interface/PATMuonCollectionContainer.h"
 #include "JMETriggerAnalysis/NTuplizers/interface/PATElectronCollectionContainer.h"
+#include "JMETriggerAnalysis/NTuplizers/interface/PATPhotonCollectionContainer.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 #include <string>
@@ -104,6 +105,7 @@ protected:
   std::vector<PATMETCollectionContainer> v_patMETCollectionContainer_;
   std::vector<PATMuonCollectionContainer> v_patMuonCollectionContainer_;
   std::vector<PATElectronCollectionContainer> v_patElectronCollectionContainer_;
+  std::vector<PATPhotonCollectionContainer> v_patPhotonCollectionContainer_;
 
   TTree* ttree_ = nullptr;
   
@@ -112,11 +114,13 @@ protected:
 
   bool createSkim_;
   bool isMuonDataset_;
+  bool isEGammaDataset_;
   bool createTriggerQuantities_;
   bool createOfflineQuantities_;
   
   edm::EDGetTokenT<pat::JetCollection> jetsToken;
   edm::EDGetTokenT<pat::MuonCollection> muonsToken;
+  edm::EDGetTokenT<pat::PhotonCollection> photonsToken;
   edm::EDGetTokenT<pat::METCollection> metToken;
   edm::EDGetTokenT<pat::METCollection> pfmetToken;
   edm::EDGetTokenT<reco::VertexCollection> recVtxsToken;
@@ -124,6 +128,7 @@ protected:
 
   edm::Handle<pat::JetCollection> jets;
   edm::Handle<pat::MuonCollection> muons;
+  edm::Handle<pat::PhotonCollection> photons;
   edm::Handle<pat::METCollection> met;
   edm::Handle<pat::METCollection> pfmet;
   edm::Handle<reco::VertexCollection> recVtxs;
@@ -262,10 +267,12 @@ JMETriggerNTuple_MiniAOD::JMETriggerNTuple_MiniAOD(const edm::ParameterSet& iCon
   // make skim
   createSkim_= iConfig.getUntrackedParameter<bool>("createSkim",false);
   isMuonDataset_= iConfig.getUntrackedParameter<bool>("isMuonDataset",false);
+  isEGammaDataset_= iConfig.getUntrackedParameter<bool>("isEGammaDataset",false);
   createTriggerQuantities_ = iConfig.getUntrackedParameter<bool>("createTriggerQuantities",false);
   createOfflineQuantities_ = iConfig.getUntrackedParameter<bool>("createOfflineQuantities",false);
   jetsToken             = consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"));
   muonsToken            = consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"));
+  photonsToken          = consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"));
   metToken              = consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("met"));
   pfmetToken              = consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("pfmet"));
   recVtxsToken          = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
@@ -476,6 +483,16 @@ JMETriggerNTuple_MiniAOD::JMETriggerNTuple_MiniAOD(const edm::ParameterSet& iCon
                                                                          "pat::ElectronCollection",
                                                                          stringCutObjectSelectors_map_);
   for (auto& cc_i : v_patElectronCollectionContainer_) {
+    cc_i.orderByHighestPt(true);
+  }
+
+  // pat::PhotonCollection
+  initCollectionContainer<PATPhotonCollectionContainer, pat::Photon>(iConfig,
+                                                                         v_patPhotonCollectionContainer_,
+                                                                         "patPhotonCollections",
+                                                                         "pat::PhotonCollection",
+                                                                         stringCutObjectSelectors_map_);
+  for (auto& cc_i : v_patPhotonCollectionContainer_) {
     cc_i.orderByHighestPt(true);
   }
 
@@ -908,6 +925,22 @@ JMETriggerNTuple_MiniAOD::JMETriggerNTuple_MiniAOD(const edm::ParameterSet& iCon
     this->addBranch(patElectronCollectionContainer_i.name() + "_etaSC", &patElectronCollectionContainer_i.vec_etaSC());
   }
 
+  for (auto& patPhotonCollectionContainer_i : v_patPhotonCollectionContainer_) {
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_pdgId", &patPhotonCollectionContainer_i.vec_pdgId());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_pt", &patPhotonCollectionContainer_i.vec_pt());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_eta", &patPhotonCollectionContainer_i.vec_eta());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_phi", &patPhotonCollectionContainer_i.vec_phi());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_mass", &patPhotonCollectionContainer_i.vec_mass());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_vx", &patPhotonCollectionContainer_i.vec_vx());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_vy", &patPhotonCollectionContainer_i.vec_vy());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_vz", &patPhotonCollectionContainer_i.vec_vz());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_dxyPV", &patPhotonCollectionContainer_i.vec_dxyPV());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_dzPV", &patPhotonCollectionContainer_i.vec_dzPV());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_id", &patPhotonCollectionContainer_i.vec_id());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_pfIso", &patPhotonCollectionContainer_i.vec_pfIso());
+    this->addBranch(patPhotonCollectionContainer_i.name() + "_etaSC", &patPhotonCollectionContainer_i.vec_etaSC());
+  }
+
   // settings for output TFile and TTree
   fs->file().SetCompressionAlgorithm(ROOT::ECompressionAlgorithm::kLZ4);
   fs->file().SetCompressionLevel(4);
@@ -979,6 +1012,7 @@ void JMETriggerNTuple_MiniAOD::analyze(const edm::Event& iEvent, const edm::Even
   // get objects 
   iEvent.getByToken(jetsToken,jets);
   iEvent.getByToken(muonsToken,muons);
+  iEvent.getByToken(photonsToken,photons);
   iEvent.getByToken(metToken,met);
   iEvent.getByToken(pfmetToken,pfmet);
   iEvent.getByToken(recVtxsToken,recVtxs);  
@@ -1079,6 +1113,10 @@ void JMETriggerNTuple_MiniAOD::analyze(const edm::Event& iEvent, const edm::Even
         // check if leading jet is matched to a Lepton in case of MuonDataset
         if(isMuonDataset_){
           for(pat::MuonCollection::const_iterator mu =muons->begin();mu != muons->end(); ++mu) if (deltaR(mu->eta(),mu->phi(),ijet->eta(),ijet->phi()) < DRmax) isLeptonMatched = true;
+          leadingJetIsGood = leadingJetIsGood && !isLeptonMatched;
+        }
+	if(isEGammaDataset_){
+          for(pat::PhotonCollection::const_iterator pho = photons->begin();pho != photons->end(); ++pho) if (deltaR(pho->eta(),pho->phi(),ijet->eta(),ijet->phi()) < DRmax) isLeptonMatched = true;
           leadingJetIsGood = leadingJetIsGood && !isLeptonMatched;
         }
       }
@@ -1186,7 +1224,6 @@ void JMETriggerNTuple_MiniAOD::analyze(const edm::Event& iEvent, const edm::Even
   // fill TriggerResultsContainer
   edm::Handle<edm::TriggerResults> triggerResults_handle;
   iEvent.getByToken(triggerResultsContainer_ptr_->token(), triggerResults_handle);
-
   if (not triggerResults_handle.isValid()) {
     edm::LogWarning("JMETriggerNTuple_MiniAOD::analyze")
         << "invalid handle for input collection: \"" << triggerResultsContainer_ptr_->inputTagLabel()
@@ -1380,6 +1417,10 @@ void JMETriggerNTuple_MiniAOD::analyze(const edm::Event& iEvent, const edm::Even
   this->fillCollectionContainer<PATElectronCollectionContainer, pat::Electron>(
       iEvent, v_patElectronCollectionContainer_, fillCollectionConditionMap_);
 
+  // pat::PhotonCollection
+  this->fillCollectionContainer<PATPhotonCollectionContainer, pat::Photon>(
+      iEvent, v_patPhotonCollectionContainer_, fillCollectionConditionMap_);
+
   // fill TTree
   ttree_->Fill();
 }
@@ -1428,7 +1469,6 @@ bool JMETriggerNTuple_MiniAOD::passesTriggerResults_OR(const edm::TriggerResults
   for (unsigned int idx = 0; idx < triggerResults.size(); ++idx) {
     if (triggerResults.at(idx).accept() == true) {
       const auto& triggerName = triggerNames.at(idx);
-
       if (std::find(paths.begin(), paths.end(), triggerName) != paths.end()) {
         LogDebug("JMETriggerNTuple_MiniAOD::passesTriggerResults_OR") << "event accepted by path \"" << triggerName << "\"";
         return true;

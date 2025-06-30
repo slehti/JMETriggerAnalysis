@@ -114,9 +114,10 @@ def getsamples(args):
         from createCrabConfigFilesNanoAOD import samples,samples_muons
     else:
         print("Samples in crab/createCrabConfigFilesMiniAOD.py")
-        from createCrabConfigFilesMiniAOD import samples,samples_muons
+        from createCrabConfigFilesMiniAOD import samples,samples_muons,samples_photons
     returnsamples.update(samples)
-    returnsamples.update(samples_muons)    
+    returnsamples.update(samples_muons)
+    returnsamples.update(samples_photons)
     return returnsamples
 
 def listdatasets(opts,args):

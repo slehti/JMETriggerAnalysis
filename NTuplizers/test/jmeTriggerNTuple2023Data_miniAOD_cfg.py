@@ -21,6 +21,11 @@ opts.register('isMuonData', True,
               vpo.VarParsing.varType.bool,
               'set to True if you want to run on Muon dataset for miniAOD analysis')
 
+opts.register('isEGammaData', False,
+              vpo.VarParsing.multiplicity.singleton,
+              vpo.VarParsing.varType.bool,
+              'set to True if you want to run on EGamma dataset for miniAOD analysis')
+
 opts.register('dumpPython', None,
               vpo.VarParsing.multiplicity.singleton,
               vpo.VarParsing.varType.string,
@@ -82,6 +87,8 @@ opts.register('verbosity', 0,
 #              'show summaries from HLT services')
 
 opts.parseArguments()
+if opts.isEGammaData:
+   opts.isMuonData = False
 
 ###
 ### Process
@@ -198,10 +205,13 @@ if opts.offlineJecs is not None:
 from JMETriggerAnalysis.NTuplizers.userMuons_cff import userMuons
 process, userMuonsCollection = userMuons(process)
 
-## Electrons
+## Jets
 from JMETriggerAnalysis.NTuplizers.userJets_cff import userJets
 process, userJetsAK4PFPuppiCollection = userJets(process)
 
+## Photons
+from JMETriggerAnalysis.NTuplizers.userPhotons_cff import userPhotons
+process, userPhotonsCollection = userPhotons(process)
 
 ## Update MET corrections based on new userJetsAK4PFPuppiCollection
 # link for recommendations : https://twiki.cern.ch/twiki/bin/viewauth/CMS/MissingETUncertaintyPrescription
@@ -228,6 +238,8 @@ pathsForDataSelection = []
 
 if opts.isMuonData:
    pathsForDataSelection = ['HLT_IsoMu27']
+elif opts.isEGammaData:
+   pathsForDataSelection = ['HLT_Photon45EB_TightID_TightIso']
 else:
   pathsForDataSelection = [
       # Single jet triggers
@@ -271,10 +283,12 @@ process.JMETriggerNTuple = cms.EDAnalyzer('JMETriggerNTuple_MiniAOD',
   TTreeName = cms.string('Events'),
   createSkim = cms.untracked.bool(True), # applies selection of events based on collections jets,met,muons etc bellow - Note: will create dijet skim unless the isMuonDataset is used.
   isMuonDataset = cms.untracked.bool(opts.isMuonData), # use this only for muon dataset to apply the muons criteria in selection
+  isEGammaDataset = cms.untracked.bool(opts.isEGammaData),
   createTriggerQuantities = cms.untracked.bool(True), # creates branches with trigger objects and if also one wants (from the boolean bellow) offline quantities to monitor
   createOfflineQuantities = cms.untracked.bool(False),
   jets = cms.InputTag(userJetsAK4PFPuppiCollection),
   muons = cms.InputTag(userMuonsCollection),
+  photons = cms.InputTag(userPhotonsCollection),
   pfmet = cms.InputTag("slimmedMETs"),
   met = cms.InputTag("slimmedMETsPuppi"),
   #met = cms.InputTag("slimmedMETsPuppi","","MYANALYSIS"),
@@ -476,6 +490,10 @@ process.JMETriggerNTuple = cms.EDAnalyzer('JMETriggerNTuple_MiniAOD',
 
   patMuonCollections = cms.PSet(
     offlineMuons = cms.InputTag(userMuonsCollection)
+  ),
+
+  patPhotonCollections = cms.PSet(
+    offlinePhotons = cms.InputTag(userPhotonsCollection)
   )
 )
 
@@ -605,14 +623,25 @@ process.triggerFlagsSeq = cms.Sequence(process.triggerFlagsTask)
 
 #process.fullPatMetSequencePuppi = cms.Sequence(process.fullPatMetTaskPuppi)
 
+
 process.analysisCollectionsPath = cms.Path(
-  process.userMuonsSequence
-  + process.userJetsSeq
-  #+ process.puppiMETSequence # for MET corrections
-  #+ process.fullPatMetSequencePuppi  # for MET corrections
-  + process.triggerFlagsSeq
-  + process.JMETriggerNTuple
+   process.userMuonsSequence
+   + process.userJetsSeq
+   #+ process.puppiMETSequence # for MET corrections
+   #+ process.fullPatMetSequencePuppi  # for MET corrections
+   + process.triggerFlagsSeq
+   + process.JMETriggerNTuple
 )
+
+if opts.isEGammaData:
+   process.analysisCollectionsPath = cms.Path(
+      process.userPhotonsSequence
+      + process.userMuonsSequence
+      + process.userJetsSeq
+      + process.triggerFlagsSeq
+      + process.JMETriggerNTuple
+   )
+
 
 ###
 ### standard options
@@ -642,36 +671,39 @@ if opts.inputFiles:
 else:
   process.source.fileNames = [
      
-      # #"/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/f3854db9-8328-4591-b2e2-8a0cd34031fc.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/2a41298a-f240-421d-92a3-665f0a00a9da.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/90a54148-7f8b-40f3-ac77-e240a82b95d2.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/aea24369-2a7e-44c1-a476-8255ceeef295.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/fb66836e-3ee5-4995-9dc4-44357914dbf1.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/bc3bc8ef-e2af-4dcd-8e95-8bc0e5c98096.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/3e04bb3f-daf7-460d-9b91-eb20d9d5150c.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/71c228bb-fa00-4ab6-a257-88cf7a79b605.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/626/00000/20ce0b17-7996-466a-8b21-a1cb8106306e.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/2d683ffe-08fb-4d32-a1a8-03b849ffdbca.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/6a8b664d-57e7-42f5-bb16-ddad315c5ffb.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/569c8b9d-fb67-4932-bcb7-36928521a897.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/680be2a4-426f-4adb-8087-c24ce8fdf4bd.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/064338f3-6d48-4057-9791-4817d31044b2.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/aa078748-9f12-4449-8c6f-8f46e260c33a.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/567/00000/24961d49-a692-4127-9f31-6c8f743fb0ac.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/567/00000/d0012944-3bfe-4635-966b-0d5df201f6e8.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/567/00000/7727ca8e-af85-4b14-95ad-7f08feaafe72.root",
-      # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/620/00000/6fb8c3d9-625d-4af7-be14-b62858bfb066.root",
+     # #"/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/f3854db9-8328-4591-b2e2-8a0cd34031fc.root",
+     #"/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/2a41298a-f240-421d-92a3-665f0a00a9da.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/90a54148-7f8b-40f3-ac77-e240a82b95d2.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/aea24369-2a7e-44c1-a476-8255ceeef295.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/fb66836e-3ee5-4995-9dc4-44357914dbf1.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/bc3bc8ef-e2af-4dcd-8e95-8bc0e5c98096.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/3e04bb3f-daf7-460d-9b91-eb20d9d5150c.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/71c228bb-fa00-4ab6-a257-88cf7a79b605.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/626/00000/20ce0b17-7996-466a-8b21-a1cb8106306e.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/2d683ffe-08fb-4d32-a1a8-03b849ffdbca.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/6a8b664d-57e7-42f5-bb16-ddad315c5ffb.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/569c8b9d-fb67-4932-bcb7-36928521a897.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/680be2a4-426f-4adb-8087-c24ce8fdf4bd.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/064338f3-6d48-4057-9791-4817d31044b2.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/627/00000/aa078748-9f12-4449-8c6f-8f46e260c33a.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/567/00000/24961d49-a692-4127-9f31-6c8f743fb0ac.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/567/00000/d0012944-3bfe-4635-966b-0d5df201f6e8.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/567/00000/7727ca8e-af85-4b14-95ad-7f08feaafe72.root",
+     # "/store/data/Run2024D/JetMET1/MINIAOD/PromptReco-v1/000/380/620/00000/6fb8c3d9-625d-4af7-be14-b62858bfb066.root",
     
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/106b7dab-0466-436c-9bbc-fc5d775c2b0b.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/16f7a7a8-ed8b-47fd-99ef-af5d1ae192e0.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/d878fa5e-9428-4561-a505-32146cd83aaf.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/ffafb0c2-2e05-499f-9b9d-922be3d67a70.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/bdb42e3e-422b-4ca9-9945-411e62a1b60c.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/ffdb4e66-03e8-48eb-a665-40286a7cb70d.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/f98c4569-1324-4370-9f8f-655fb69e2384.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/fefcd741-9eb9-4cbe-a447-1e071322d54a.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/618d3936-bdef-4c01-a631-0d62af74abc8.root",
-    "/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/f1ba24bf-eae6-4d47-a014-f0119ea43801.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/106b7dab-0466-436c-9bbc-fc5d775c2b0b.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/16f7a7a8-ed8b-47fd-99ef-af5d1ae192e0.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/d878fa5e-9428-4561-a505-32146cd83aaf.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/ffafb0c2-2e05-499f-9b9d-922be3d67a70.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/bdb42e3e-422b-4ca9-9945-411e62a1b60c.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/ffdb4e66-03e8-48eb-a665-40286a7cb70d.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/f98c4569-1324-4370-9f8f-655fb69e2384.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/fefcd741-9eb9-4cbe-a447-1e071322d54a.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/945/00000/618d3936-bdef-4c01-a631-0d62af74abc8.root",
+     #"/store/data/Run2024D/Muon1/MINIAOD/PromptReco-v1/000/380/947/00000/f1ba24bf-eae6-4d47-a014-f0119ea43801.root",
+
+     "/store/data/Run2025C/EGamma0/MINIAOD/PromptReco-v1/000/392/175/00000/019bd25e-cb88-47c0-9b56-9901272e3d6d.root"
+     #"/store/data/Run2024I/EGamma0/MINIAOD/PromptReco-v2/000/386/694/00000/007e61d8-2a78-4019-8189-b8b5379e6d15.root",
   ]
 
 # input EDM files [secondary]

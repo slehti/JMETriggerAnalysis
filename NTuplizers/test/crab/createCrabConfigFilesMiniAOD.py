@@ -129,6 +129,19 @@ samples = {
   'JetMET1_Run2025C':["/JetMET1/Run2025C-PromptReco-v1/MINIAOD","","Collisions25/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions25_13p6TeV_Latest.json","150X_dataRun3_Prompt_v1"],
 }
 
+samples_photons = {
+  #2024 EGamma
+  'EGamma0_Run2024I1':["/EGamma0/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+  'EGamma0_Run2024I2':["/EGamma0/Run2024I-PromptReco-v2/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+  'EGamma1_Run2024I1':["/EGamma1/Run2024I-PromptReco-v1/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+  'EGamma1_Run2024I2':["/EGamma1/Run2024I-PromptReco-v2/MINIAOD","Winter24Prompt24_RunInib1_V3_DATA","Collisions24/2024I_Golden.json","140X_dataRun3_Prompt_v4"],
+
+  #2025 EGamma
+  'EGamma0_Run2025C':["/EGamma0/Run2025C-PromptReco-v1/MINIAOD","","Collisions25/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions25_13p6TeV_Latest.json","150X_dataRun3_Prompt_v1"],
+  'EGamma1_Run2025C':["/EGamma1/Run2025C-PromptReco-v1/MINIAOD","","Collisions25/DCSOnly_JSONS/dailyDCSOnlyJSON/Collisions25_13p6TeV_Latest.json","150X_dataRun3_Prompt_v1"],
+}
+
+
 def main():
   for sample, sample_attributes in samples.items():
     name=sample_attributes[0]
