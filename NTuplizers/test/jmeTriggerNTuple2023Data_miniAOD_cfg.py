@@ -239,7 +239,7 @@ pathsForDataSelection = []
 if opts.isMuonData:
    pathsForDataSelection = ['HLT_IsoMu27']
 elif opts.isEGammaData:
-   pathsForDataSelection = ['HLT_Photon45EB_TightID_TightIso']
+   pathsForDataSelection = ['HLT_Photon50EB_TightID_TightIso']
 else:
   pathsForDataSelection = [
       # Single jet triggers
