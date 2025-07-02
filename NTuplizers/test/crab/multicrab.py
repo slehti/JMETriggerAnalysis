@@ -184,6 +184,10 @@ def create(opts,args):
         if "Muon" in name:
             isMuonData = "True"
 
+        isEGammaData = "False"
+        if "EGamma" in name:
+            isEGammaData = "True"
+            isMuonData = "False"
         jecsName=sample_attributes[1]
         lumiJSON="/eos/user/c/cmsdqm/www/CAF/certification/" + sample_attributes[2]
         globalTag=sample_attributes[3]
@@ -223,10 +227,10 @@ def create(opts,args):
                 file.write("config.JobType.inputFiles = [\'%s\', \'%s\']\n"%(SKIMCONFIG, os.path.join(dIN,PSET)))
         else:
             if (jecsName is not None) and (len(jecsName)>0):
-                file.write("config.JobType.pyCfgParams = [\'offlineJecs="+jecsName+"\',\'globalTag="+globalTag+"\',\'isMuonData="+isMuonData+"\']\n")
+                file.write("config.JobType.pyCfgParams = [\'offlineJecs="+jecsName+"\',\'globalTag="+globalTag+"\',\'isMuonData="+isMuonData+"\',\'isEGammaData="+isEGammaData+"\']\n")
                 file.write("config.JobType.inputFiles = [\'%s\']\n"%(os.path.join(dIN,jecsName+".db")))
             else:
-                file.write("config.JobType.pyCfgParams = [\'globalTag="+globalTag+"\',\'isMuonData="+isMuonData+"\']\n")
+                file.write("config.JobType.pyCfgParams = [\'globalTag="+globalTag+"\',\'isMuonData="+isMuonData+"\',\'isEGammaData="+isEGammaData+"\']\n")
 
         #file.write("config.JobType.maxJobRuntimeMin = 2*1315\n")
         file.write("\n")
